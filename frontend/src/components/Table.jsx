@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import {
   MdOutlineDeleteOutline,
@@ -8,6 +8,10 @@ import {
 } from "react-icons/md";
 
 const Table = ({ todos, setTodos, loading }) => {
+  const [editText, setEditText] = useState({
+    body: "",
+  });
+
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://127.0.0.1:8000/todo/${id}/`);
@@ -37,6 +41,21 @@ const Table = ({ todos, setTodos, loading }) => {
     handleEdit(id, {
       completed: !value,
     });
+  };
+
+  const handleChange = (e) => {
+    setEditText((prev) => ({
+      ...prev,
+      body: e.target.value,
+    }));
+    console.log(editText);
+  };
+
+  const handleClick = () => {
+    handleEdit(editText.id, editText);
+    setEditText({
+      'body':''
+    })
   };
 
   return (
@@ -107,6 +126,7 @@ const Table = ({ todos, setTodos, loading }) => {
                       <span>
                         <label htmlFor="my_modal_6" className="btn">
                           <MdEditNote
+                            onClick={() => setEditText(todoItem)}
                             className="text-blue-700 cursor-pointer"
                             size={30}
                           />
@@ -133,9 +153,18 @@ const Table = ({ todos, setTodos, loading }) => {
       <div className="modal" role="dialog">
         <div className="modal-box">
           <h3 className="font-bold text-lg">Edit Task</h3>
-          <input type="text" placeholder="Type here" className="input input-bordered w-full mt-8" />
+          <input
+            type="text"
+            value={editText.body}
+            onChange={handleChange}
+            className="input input-bordered w-full mt-8"
+          />
           <div className="modal-action">
-          <label htmlFor="my_modal_6" className="btn btn-primary">
+            <label
+              onClick={handleClick}
+              htmlFor="my_modal_6"
+              className="btn btn-primary"
+            >
               Edit
             </label>
             <label htmlFor="my_modal_6" className="btn">
