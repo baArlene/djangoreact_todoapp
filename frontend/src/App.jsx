@@ -29,7 +29,10 @@ function App() {
         <h1 className="text-5xl text-center font-semibold">Todo App</h1>
       </nav>
       <div className="px-4 py-6 bg-slate-200 text-black">
-        <TodoForm />
+        <TodoForm
+          setTodos = {setTodos} 
+          getData={getData}
+        />
         <Table 
           todos = {todos}
           setTodos = {setTodos}

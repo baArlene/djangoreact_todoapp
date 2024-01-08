@@ -1,4 +1,5 @@
 import React from "react";
+import axios from "axios";
 import {
   MdOutlineDeleteOutline,
   MdEditNote,
@@ -7,6 +8,37 @@ import {
 } from "react-icons/md";
 
 const Table = ({ todos, setTodos, loading }) => {
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://127.0.0.1:8000/todo/${id}/`);
+      const newList = todos.filter((todo) => todo.id !== id);
+      setTodos(newList);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleEdit = async (id, value) => {
+    try {
+      const response = await axios.patch(
+        `http://127.0.0.1:8000/todo/${id}/`,
+        value
+      );
+      const newTodos = todos.map((todo) =>
+        todo.id === id ? response.data : todo
+      );
+      setTodos(newTodos);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleCheckbox = (id, value) => {
+    handleEdit(id, {
+      completed: !value,
+    });
+  };
+
   return (
     <div>
       <table className="w-11/12 max-w-4xl mx-auto">
@@ -37,8 +69,12 @@ const Table = ({ todos, setTodos, loading }) => {
               {todos.map((todoItem, index) => {
                 return (
                   <tr key={todoItem.id} className="border-b border-gray-500">
-                    <td className="text-lg p-3" title={todoItem.id} >
-                      <span>
+                    <td className="text-lg p-3" title={todoItem.id}>
+                      <span
+                        onClick={() =>
+                          handleCheckbox(todoItem.id, todoItem.completed)
+                        }
+                      >
                         {todoItem.completed ? (
                           <MdOutlineCheckBox
                             className="text-teal-500 mx-auto cursor-pointer"
@@ -56,8 +92,12 @@ const Table = ({ todos, setTodos, loading }) => {
                       {todoItem.body}
                     </td>
                     <td className="text-lg p-3 text-center font-normal">
-                      <span className={`p-2 font-medium tracking-wider rounded-md ${todoItem.completed ? 'bg-teal-300' : 'bg-red-300'} `}>
-                      {todoItem.completed ? 'Complete' : 'Incomplete'}
+                      <span
+                        className={`p-2 font-medium tracking-wider rounded-md ${
+                          todoItem.completed ? "bg-teal-300" : "bg-red-300"
+                        } `}
+                      >
+                        {todoItem.completed ? "Complete" : "Incomplete"}
                       </span>
                     </td>
                     <td className="text-lg p-3 text-center font-normal">
@@ -65,13 +105,16 @@ const Table = ({ todos, setTodos, loading }) => {
                     </td>
                     <td className="flex text-lg p-3 items-center justify-between">
                       <span>
-                        <MdEditNote
-                          className="text-blue-700 cursor-pointer"
-                          size={30}
-                        />
+                        <label htmlFor="my_modal_6" className="btn">
+                          <MdEditNote
+                            className="text-blue-700 cursor-pointer"
+                            size={30}
+                          />
+                        </label>
                       </span>
                       <span>
                         <MdOutlineDeleteOutline
+                          onClick={() => handleDelete(todoItem.id)}
                           className="text-red-700 cursor-pointer"
                           size={30}
                         />
@@ -84,6 +127,23 @@ const Table = ({ todos, setTodos, loading }) => {
           )}
         </tbody>
       </table>
+
+      {/* Put this part before </body> tag */}
+      <input type="checkbox" id="my_modal_6" className="modal-toggle" />
+      <div className="modal" role="dialog">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">Edit Task</h3>
+          <input type="text" placeholder="Type here" className="input input-bordered w-full mt-8" />
+          <div className="modal-action">
+          <label htmlFor="my_modal_6" className="btn btn-primary">
+              Edit
+            </label>
+            <label htmlFor="my_modal_6" className="btn">
+              Close!
+            </label>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
